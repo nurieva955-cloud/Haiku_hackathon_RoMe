@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CollabBuy — Сервис коллективных покупок с маркетплейсов</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- INTERACTIVE CANVAS API BACKGROUND -->
+  <canvas id="interactive-canvas"></canvas>
+
+  <!-- Ambient Glow Background Blobs -->
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- WIDESCREEN LAYOUT MODE SWITCHER -->
+  <div class="desktop-layout-switcher">
+    <button id="btn-mode-mobile" class="switcher-btn active">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+      Смартфон MVP
+    </button>
+    <button id="btn-mode-desktop" class="switcher-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>
+      Десктоп Веб-Интерфейс
+    </button>
+  </div>
+
+  <!-- APP VIEW CONTAINER -->
+  <div id="phone-wrapper" class="mode-mobile">
+    
+    <!-- iPhone-style Dynamic Island -->
+    <div class="dynamic-island"></div>
+
+    <!-- Simulated iOS Status Bar -->
+    <div class="status-bar">
+      <div class="status-bar-time" id="status-time">11:57</div>
+      <div class="status-bar-icons">
+        <svg class="status-bar-icon" viewBox="0 0 17 11" fill="none">
+          <rect x="0" y="8" width="2" height="3" rx="0.5" fill="currentColor"/>
+          <rect x="4" y="6" width="2" height="5" rx="0.5" fill="currentColor"/>
+          <rect x="8" y="4" width="2" height="7" rx="0.5" fill="currentColor"/>
+          <rect x="12" y="2" width="2" height="9" rx="0.5" fill="currentColor"/>
+          <rect x="16" y="0" width="1" height="11" rx="0.5" fill="currentColor"/>
+        </svg>
+        <svg class="status-bar-icon" viewBox="0 0 17 11" fill="none" style="width: 15px;">
+          <path d="M1.5 3C5.5 -1 11.5 -1 15.5 3M3.5 5.2C6.5 2.2 10.5 2.2 13.5 5.2M5.5 7.4C7.5 5.4 9.5 5.4 11.5 7.4M7.5 9.5C8 9 9 9 9.5 9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        </svg>
+        <svg class="status-bar-icon" viewBox="0 0 22 11" fill="none" style="width: 20px;">
+          <rect x="0.5" y="0.5" width="18" height="10" rx="2.5" stroke="currentColor"/>
+          <rect x="2" y="2" width="15" height="7" rx="1.5" fill="currentColor" id="status-battery-fill"/>
+          <path d="M20 3.5V7.5" stroke="currentColor" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- DYNAMIC IN-APP ALERT BANNER -->
+    <div class="app-alert-banner" id="app-alert-banner">
+      <div class="alert-icon">🎉</div>
+      <div class="alert-content">
+        <span class="alert-title">Группа успешно собрана!</span>
+        <span class="alert-desc" id="alert-banner-desc">Заказ выкуплен!</span>
+      </div>
+      <button class="alert-close animated-btn" id="btn-close-alert">&times;</button>
+    </div>
+
+    <!-- DESKTOP TOP HEADER BAR (Hides search and menu during onboarding via CSS class onboarding-active) -->
+    <header class="desktop-header onboarding-active" id="app-desktop-header">
+      <div class="desktop-logo-brand animated-btn" id="desktop-logo" style="cursor: pointer;">COLLAB<span>BUY</span></div>
+      <div class="desktop-search-container header-registration-hide">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Поиск групповых товаров..." id="desktop-search-input">
+      </div>
+      <div class="desktop-user-menu header-registration-hide">
+        <div class="user-location-badge header-widget" id="header-loc-selector">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span class="user-city-name-val">Алматы</span>
+        </div>
+        <div class="desktop-notifications header-widget">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="widget-badge">3</span>
+        </div>
+        <div class="user-points-badge header-widget animated-btn" id="header-points-widget" style="border-color: var(--accent-yellow); margin-right: 4px;">
+          <span style="color: var(--accent-yellow); font-weight: 800;">⚡ <span id="header-points-val">450</span> Б</span>
+        </div>
+        <div class="desktop-user-profile header-widget animated-btn" id="header-profile-menu">
+          <div class="desktop-avatar">Д</div>
+          <span class="desktop-username">Данияр</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- CORE CONTENT FRAME -->
+    <div class="app-container">
+
+      <!-- ========================================================
+           SCREEN 1: SPLASH & ONBOARDING (AUTHENTICATION)
+           ======================================================== -->
+      <div id="screen-onboarding" class="page active">
+        
+        <!-- Splash Loader Screen -->
+        <div class="splash-container" id="splash-view">
+          <div class="brand-logo-glow">
+            COLLAB<span>BUY</span>
+          </div>
+          <div class="brand-subtitle">
+            Групповые закупки с AliExpress, Ozon, Kaspi и Wildberries по оптовым ценам.
+          </div>
+          
+          <!-- eSIM Auth trigger -->
+          <div class="auth-box">
+            <button class="btn-esim-auth animated-btn" id="btn-esim-start">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <rect x="4" y="4" width="16" height="16" rx="4" />
+                <rect x="8" y="8" width="8" height="8" rx="2" stroke-dasharray="2 1"/>
+                <path d="M12 2v2M12 20v2M2 12h2M20 12h2M7 2v2M17 2v2M7 20v2M17 20v2" stroke-linecap="round"/>
+              </svg>
+              Вход по SIM/eSIM ID Security
+            </button>
+          </div>
+
+          <!-- Handshake loader animation -->
+          <div class="auth-loader-container" id="auth-loader">
+            <div class="esim-chip-visual">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2"/>
+                <path d="M9 11l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="auth-status-text" id="auth-status-text">Инициализация защищенного канала...</div>
+          </div>
+        </div>
+
+        <!-- Setup Profile Wizard -->
+        <div class="profile-wizard-box" id="wizard-view">
+          <div>
+            <div class="wizard-title">Настройка Smart Match</div>
+            <div class="wizard-subtitle">Настройте ИИ-рекомендации для поиска лучших скидок в вашем регионе.</div>
+          </div>
+
+          <!-- Gender & Age Row -->
+          <div class="wizard-row">
+            <div class="wizard-input-group" style="flex: 1.2;">
+              <span class="wizard-label">Пол</span>
+              <div class="segmented-control">
+                <button class="segmented-btn active animated-btn" data-gender="male">Мужской</button>
+                <button class="segmented-btn animated-btn" data-gender="female">Женский</button>
+              </div>
+            </div>
+            <div class="wizard-input-group" style="flex: 0.8;">
+              <span class="wizard-label">Возраст</span>
+              <input type="number" class="wizard-input" id="wizard-age" value="23" min="14" max="99">
+            </div>
+          </div>
+
+          <!-- City Dropdown -->
+          <div class="wizard-input-group">
+            <span class="wizard-label">Ваш Город</span>
+            <select class="wizard-select" id="wizard-city">
+              <option value="Алматы">Алматы</option>
+              <option value="Астана">Астана</option>
+              <option value="Шымкент">Шымкент</option>
+              <option value="Караганда">Караганда</option>
+            </select>
+          </div>
+
+          <!-- Budget Slider -->
+          <div class="wizard-input-group">
+            <span class="wizard-label">Максимальный бюджет покупки</span>
+            <div class="budget-slider-container">
+              <div class="budget-val-display">
+                <span class="budget-val-number" id="budget-value-text">60 000 ₸</span>
+              </div>
+              <input type="range" class="wizard-range-slider" id="wizard-budget-slider" min="5000" max="250000" step="5000" value="60000">
+            </div>
+          </div>
+
+          <!-- Interest Tags Chips -->
+          <div class="wizard-input-group">
+            <span class="wizard-label">Ваши интересы</span>
+            <div class="interest-chips">
+              <div class="interest-chip active animated-btn" data-tag="electronics">Электроника</div>
+              <div class="interest-chip active animated-btn" data-tag="gadgets">Гаджеты</div>
+              <div class="interest-chip animated-btn" data-tag="diy">DIY-компоненты</div>
+              <div class="interest-chip animated-btn" data-tag="clothing">Одежда</div>
+              <div class="interest-chip animated-btn" data-tag="auto">Автотовары</div>
+              <div class="interest-chip animated-btn" data-tag="cosmetics">Косметика</div>
+            </div>
+          </div>
+
+          <button class="btn-primary animated-btn" id="btn-submit-profile">
+            Создать умный профиль
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ========================================================
+           SCREEN 2: HOME PAGE (AI RECOMMENDATIONS FEED)
+           ======================================================== -->
+      <div id="screen-feed" class="page">
+        <!-- Feed Top Mobile Header -->
+        <div class="feed-header mobile-only">
+          <div class="user-profile-summary">
+            <div class="user-avatar" id="feed-avatar">Д</div>
+            <div class="user-details">
+              <span class="user-greeting">Привет, Данияр!</span>
+              <span class="user-location" id="feed-location-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+                <span class="user-city-name-val">Алматы</span>
+              </span>
+            </div>
+          </div>
+          <div class="header-actions">
+            <div class="icon-badge-btn animated-btn">
+              <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <div class="badge-dot"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DESKTOP CONTAINER -->
+        <div class="desktop-feed-wrapper">
+          
+          <!-- Sidebar controls -->
+          <aside class="desktop-sidebar">
+            <div class="sidebar-widget">
+              <span class="sidebar-widget-title">Фильтр подборки</span>
+              <div class="wizard-input-group">
+                <span class="wizard-label">Макс. бюджет</span>
+                <div class="budget-slider-container">
+                  <div class="budget-val-display">
+                    <span class="budget-val-number" id="sidebar-budget-text">60 000 ₸</span>
+                  </div>
+                  <input type="range" class="wizard-range-slider" id="sidebar-budget-slider" min="5000" max="250000" step="5000" value="60000">
+                </div>
+              </div>
+            </div>
+
+            <div class="sidebar-widget">
+              <span class="sidebar-widget-title">Интересы</span>
+              <div class="interest-chips" id="sidebar-chips">
+                <!-- Filled by JS -->
+              </div>
+            </div>
+
+            <div class="sidebar-widget promo-widget animated-btn" id="sidebar-promo-cabin">
+              <span class="sidebar-widget-title">Кабинет инвестора</span>
+              <p>Вы сэкономили <strong id="sidebar-saving-val">38 400 ₸</strong> за этот месяц на групповых заказах.</p>
+              <div class="group-saving-meter">
+                <div class="saving-progress" style="width: 68%;"></div>
+              </div>
+            </div>
+          </aside>
+
+          <!-- Main Feed Section -->
+          <main class="feed-main-content">
+            
+            <!-- NEW SECTION: HOT DEALS CAROUSEL (Personalized recommendations slider) -->
+            <div class="section-title-container hot-deals-title-container">
+              <span class="section-title text-glow-yellow">🔥 Горящие предложения специально для вас</span>
+            </div>
+            <div class="hot-deals-carousel-container">
+              <div class="hot-deals-slider" id="hot-deals-carousel">
+                <!-- Loaded dynamically by JS (up to 4 items) -->
+              </div>
+            </div>
+
+            <!-- Categories Tabs inside Web Feed -->
+            <div class="desktop-category-tabs">
+              <button class="cat-tab active animated-btn" data-cat="all">Все категории</button>
+              <button class="cat-tab animated-btn" data-cat="electronics">Электроника</button>
+              <button class="cat-tab animated-btn" data-cat="gadgets">Гаджеты</button>
+              <button class="cat-tab animated-btn" data-cat="diy">DIY-компоненты</button>
+              <button class="cat-tab animated-btn" data-cat="clothing">Одежда</button>
+              <button class="cat-tab animated-btn" data-cat="auto">Автотовары</button>
+              <button class="cat-tab animated-btn" data-cat="cosmetics">Косметика</button>
+            </div>
+
+            <!-- Section 1: AI Matches -->
+            <div class="section-title-container">
+              <span class="section-title">Подобрано для вас на основе ваших интересов</span>
+            </div>
+            
+            <div class="product-grid" id="feed-ai-matched-grid">
+              <!-- Loaded Dynamically -->
+            </div>
+
+            <!-- Section 2: City Popular -->
+            <div class="section-title-container">
+              <span class="section-title" id="local-section-title">Популярно в городе Алматы</span>
+            </div>
+            
+            <div class="product-grid" id="feed-local-list">
+              <!-- Loaded Dynamically -->
+            </div>
+          </main>
+
+        </div>
+      </div>
+
+      <!-- ========================================================
+           SCREEN 3: PRODUCT DETAIL PAGE (DETAILS & TIERS)
+           ======================================================== -->
+      <div id="screen-detail" class="page">
+        <!-- Top header navigation -->
+        <div class="detail-top-nav">
+          <div class="btn-round-back animated-btn" id="btn-detail-back">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          </div>
+          <div class="detail-title">Карточка Товара</div>
+          <div class="icon-badge-btn animated-btn" id="btn-detail-share">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </div>
+        </div>
+
+        <div class="product-detail-view" id="product-detail-content">
+          <!-- Desktop Two Column Split Box -->
+          <div class="detail-layout-split">
+            
+            <!-- Left Side: Product gallery -->
+            <div class="detail-split-left">
+              <div class="detail-image-gallery">
+                <img src="" alt="Детали товара" id="detail-main-img">
+                <div class="detail-donor-watermark">
+                  <span class="market-badge aliexpress" id="detail-market-badge">AliExpress</span>
+                </div>
+                <div class="detail-gallery-dots">
+                  <div class="gallery-dot active"></div>
+                  <div class="gallery-dot"></div>
+                  <div class="gallery-dot"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Side: Savings tracker and Actions -->
+            <div class="detail-split-right">
+              <div class="detail-body">
+                <div class="detail-product-title-row">
+                  <div class="detail-rating-row" id="detail-rating-row"></div>
+                  <h2 class="detail-product-title" id="detail-product-title">Заголовок товара</h2>
+                  <p class="detail-product-desc" id="detail-product-desc">Локализованное подробное описание...</p>
+                </div>
+
+                <!-- Savings Tier Card -->
+                <div class="savings-scale-card">
+                  <div class="savings-header">
+                    <span class="savings-label">Шкала оптовой экономии</span>
+                    <span class="savings-value" id="detail-savings-badge">Сэкономь 30%</span>
+                  </div>
+
+                  <!-- Node Progress bar -->
+                  <div class="discount-tiers-progress">
+                    <div class="progress-tier-bar" id="detail-tier-fill" style="width: 70%;"></div>
+                    
+                    <div class="tier-node active" id="node-tier-1">
+                      <div class="tier-dot"></div>
+                      <span class="tier-qty">1 чел.</span>
+                      <span class="tier-disc">-5%</span>
+                    </div>
+                    <div class="tier-node active current-pos" id="node-tier-2">
+                      <div class="tier-dot"></div>
+                      <span class="tier-qty">7 чел.</span>
+                      <span class="tier-disc">-25%</span>
+                    </div>
+                    <div class="tier-node" id="node-tier-3">
+                      <div class="tier-dot"></div>
+                      <span class="tier-qty">10 чел.</span>
+                      <span class="tier-disc">-35%</span>
+                    </div>
+                  </div>
+
+                  <div class="tier-explanation" id="detail-tier-helper">
+                    В пуле уже <span>7 человек</span>. До скидки 35% не хватает еще <span>3 участников</span>!
+                  </div>
+                </div>
+
+                <!-- Double CTA buttons -->
+                <div class="detail-cta-bar">
+                  <button class="btn-buy-alone animated-btn" id="btn-buy-alone-action">
+                    Купить один (Розничная цена)
+                    <span id="detail-alone-price">15 000 ₸</span>
+                  </button>
+
+                  <button class="btn-buy-group animated-btn" id="btn-buy-group-action">
+                    Вступить в пул совместной закупки
+                    <span id="detail-group-price">10 500 ₸</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bottom: Recommendations Carousel -->
+          <div class="section-title-container" style="margin-top: 30px;">
+            <span class="section-title">Рекомендовано вам, так как вы искали похожие компоненты</span>
+          </div>
+          <div class="product-grid" id="detail-rec-list">
+            <!-- Dynamic recommended cards -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================
+           SCREEN 4: INTERACTIVE CART & LIVE ROOM (CHAT)
+           ======================================================== -->
+      <div id="screen-cart" class="page">
+        <!-- Cart view top header -->
+        <div class="cart-header">
+          <h2 class="cart-header-title">Координационный хаб сборов</h2>
+        </div>
+
+        <div class="cart-room-container">
+          
+          <!-- Empty State -->
+          <div class="empty-pools-state" id="cart-empty-state" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <div class="empty-pools-title">У вас нет активных пулов</div>
+            <div class="empty-pools-text">Вступите в групповой сбор на главном экране, чтобы объединить усилия с другими покупателями!</div>
+            <button class="btn-primary animated-btn" id="btn-cart-to-feed" style="padding: 12px 24px;">Перейти к выбору</button>
+          </div>
+
+          <!-- DESKTOP CONTAINER: SPLITS CARD DETAILS AND CHAT SIDE-BY-SIDE -->
+          <div class="desktop-cart-split" id="cart-content-wrapper">
+            
+            <!-- Left Panel: Product status and order trigger -->
+            <div class="cart-split-left">
+              <div class="active-pool-header-card" id="cart-pool-card">
+                <div class="pool-card-horizontal">
+                  <div class="pool-card-thumb">
+                    <img src="" alt="Пул" id="cart-pool-img">
+                  </div>
+                  <div class="pool-card-details">
+                    <span class="pool-card-market" id="cart-pool-market">Kaspi</span>
+                    <h4 class="pool-card-title" id="cart-pool-title">Название пула</h4>
+                    <div class="pool-card-prices">
+                      <span class="pool-card-group-price" id="cart-pool-group-price">10 500 ₸</span>
+                      <span class="pool-card-old-price" id="cart-pool-old-price">15 000 ₸</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="pool-card-progress-info">
+                  <div class="pool-card-time">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span id="cart-pool-countdown">До выкупа: 02:41:15</span>
+                  </div>
+                  <div class="pool-card-count">Собрано <span id="cart-pool-collected">8</span> из <span id="cart-pool-total">10</span></div>
+                </div>
+
+                <div class="pool-progress-bar-bg" style="height: 6px;">
+                  <div class="pool-progress-bar-fill" id="cart-pool-progress-fill" style="width: 80%;"></div>
+                </div>
+
+                <button class="btn-share-pool animated-btn" id="btn-share-group-buy">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                  Поделиться ссылкой на сбор (-35% выгоды)
+                </button>
+
+                <!-- PROMINENT CHECKOUT INITIATE BUTTON -->
+                <button class="btn-primary checkout-trigger-btn animated-btn" id="btn-open-checkout">
+                  Оформить групповой заказ
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Right Panel: Integrated Chat Room -->
+            <div class="cart-split-right">
+              <div class="chat-room-section" id="cart-chat-section">
+                <div class="chat-room-header">
+                  <div class="chat-room-status-indicator">
+                    <div class="status-dot-active"></div>
+                    Координационный Чат Пула
+                  </div>
+                  <div class="chat-room-members-count" id="chat-online-count">8 в сети</div>
+                </div>
+
+                <div class="chat-messages-container" id="chat-messages-box">
+                  <!-- Messages loaded dynamically -->
+                </div>
+
+                <div class="chat-input-bar">
+                  <input type="text" class="chat-input-field" id="chat-msg-input" placeholder="Спросить про доставку, характеристики..." autocomplete="off">
+                  <button class="btn-send-message animated-btn" id="btn-send-chat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ========================================================
+           SCREEN 5: INVESTOR CABIN & ORDER HISTORY
+           ======================================================== -->
+      <div id="screen-investor" class="page">
+        <!-- Top Mobile Header with Back Action (Solves navigation escape lock) -->
+        <div class="cart-header cabin-title-bar">
+          <div class="btn-round-back animated-btn" id="btn-cabin-back" style="cursor: pointer;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          </div>
+          <h2 class="cart-header-title">Кабинет инвестора Collab</h2>
+        </div>
+
+        <!-- Cabin Sub-navigation Tabs -->
+        <div class="cabin-nav-tabs">
+          <button class="cabin-tab-btn active animated-btn" data-tab="analytics">Аналитика сбережений</button>
+          <button class="cabin-tab-btn animated-btn" data-tab="boosts">Магазин бустов</button>
+        </div>
+
+        <div class="cabin-scroll-body">
+          
+          <!-- Section 1: Savings & Analytics -->
+          <div class="cabin-view-section active" id="cabin-section-analytics" style="width: 100%;">
+            <!-- Key savings stats block -->
+            <div class="cabin-stats-grid">
+              <div class="cabin-stat-card">
+                <span class="stat-lbl">Общая сэкономленная сумма</span>
+                <strong class="stat-val" id="cabin-total-saved">38 400 ₸</strong>
+              </div>
+              <div class="cabin-stat-card">
+                <span class="stat-lbl">Совместных выкупов</span>
+                <strong class="stat-val" id="cabin-orders-count">2</strong>
+              </div>
+              <div class="cabin-stat-card">
+                <span class="stat-lbl">Активные сборы</span>
+                <strong class="stat-val" id="cabin-active-pools">0</strong>
+              </div>
+            </div>
+
+            <!-- Savings analytics visual pure-CSS progress indicators -->
+            <div class="cabin-card">
+              <h3 class="cabin-card-title">Экономия по категориям</h3>
+              <div class="category-graphs-container" id="cabin-graphs-list">
+                <!-- Rendered dynamically by JS -->
+              </div>
+            </div>
+
+            <!-- List of historical orders -->
+            <div class="cabin-card">
+              <h3 class="cabin-card-title">История совместных заказов</h3>
+              <div class="orders-history-list" id="cabin-history-list">
+                <!-- Rendered dynamically by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Boost Shop -->
+          <div class="cabin-view-section" id="cabin-section-boosts" style="display: none; width: 100%;">
+            <div class="boost-shop-container">
+              <div class="boost-shop-header">
+                <h3>Магазин Бустов (Усилители)</h3>
+                <p>Тратьте баллы на покупку особых привилегий.</p>
+                <div class="user-points-banner">
+                  Ваш баланс: <strong id="boost-user-points">450 Б</strong>
+                </div>
+              </div>
+              <div class="boost-cards-grid" id="boosts-grid">
+                <!-- Rendered dynamically by JS -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div> <!-- /app-container -->
+
+    <!-- ========================================================
+         CHECKOUT DRAWERS & MODALS (SHIPPING FLOW)
+         ======================================================== -->
+    <div class="checkout-overlay" id="checkout-overlay">
+      <div class="checkout-drawer" id="checkout-drawer">
+        <div class="drawer-header">
+          <h3>Оформление группового заказа</h3>
+          <button class="btn-close-drawer animated-btn" id="btn-close-checkout">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+
+        <div class="drawer-body">
+          
+          <div class="wizard-input-group">
+            <span class="wizard-label">ФИО получателя</span>
+            <input type="text" class="wizard-input" id="checkout-name" value="Данияр Касымов">
+          </div>
+
+          <div class="wizard-input-group">
+            <span class="wizard-label">Адрес доставки в г. <span id="checkout-city-label">Алматы</span></span>
+            <input type="text" class="wizard-input" id="checkout-address" placeholder="Улица, дом, квартира...">
+          </div>
+
+          <div class="wizard-input-group">
+            <span class="wizard-label">Способ доставки</span>
+            <div class="shipping-methods-container">
+              <div class="shipping-method-card active animated-btn" data-shipping="air" data-cost="2800">
+                <span class="shipping-icon">✈️</span>
+                <div class="shipping-details">
+                  <span class="shipping-name">CollabAir Express</span>
+                  <span class="shipping-eta">Доставка 5-7 дней</span>
+                </div>
+                <span class="shipping-cost">2 800 ₸</span>
+              </div>
+
+              <div class="shipping-method-card animated-btn" data-shipping="cargo" data-cost="1200">
+                <span class="shipping-icon">🚚</span>
+                <div class="shipping-details">
+                  <span class="shipping-name">CollabCargo Standard</span>
+                  <span class="shipping-eta">Доставка 12-15 дней</span>
+                </div>
+                <span class="shipping-cost">1 200 ₸</span>
+              </div>
+
+              <div class="shipping-method-card animated-btn" data-shipping="pickup" data-cost="0">
+                <span class="shipping-icon">📦</span>
+                <div class="shipping-details">
+                  <span class="shipping-name">Пункт выдачи Collab</span>
+                  <span class="shipping-eta">Забрать самостоятельно</span>
+                </div>
+                <span class="shipping-cost">Бесплатно</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="wizard-input-group">
+            <span class="wizard-label">Безопасная оплата</span>
+            <div class="segmented-control payment-selector">
+              <button class="segmented-btn active animated-btn" data-pay="esim">eSIM ID Secure Pay</button>
+              <button class="segmented-btn animated-btn" data-pay="kaspi">Kaspi QR</button>
+            </div>
+          </div>
+
+          <!-- Price Summary Breakdown -->
+          <div class="price-breakdown-card">
+            <div class="price-breakdown-row">
+              <span>Цена без группы:</span>
+              <span id="breakdown-solo-price">15 000 ₸</span>
+            </div>
+            <div class="price-breakdown-row discount-row">
+              <span>Скидка коллективного пула:</span>
+              <span id="breakdown-discount">-4 500 ₸</span>
+            </div>
+            <div class="price-breakdown-row">
+              <span>Доставка:</span>
+              <span id="breakdown-shipping-cost">2 800 ₸</span>
+            </div>
+            <hr class="price-divider">
+            <div class="price-breakdown-row total-row">
+              <span>Итого к оплате:</span>
+              <span id="breakdown-total-price">13 300 ₸</span>
+            </div>
+          </div>
+
+          <button class="btn-primary animated-btn" id="btn-process-payment" style="margin-top: 15px;">
+            Подтвердить оплату через eSIM ID
+          </button>
+        </div>
+      </div>
+
+      <!-- SUCCESS SCREEN -->
+      <div class="checkout-success-view" id="checkout-success-view">
+        <div class="success-glow"></div>
+        <div class="success-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <polyline points="9 11 11 13 15 9"/>
+          </svg>
+        </div>
+        <h2>Заказ успешно оформлен!</h2>
+        <p>Пул заблокирован. Сделка подтверждена по протоколу eSIM ID Security. Средства зарезервированы на транзитном счете (Safe Escrow) до доставки.</p>
+        
+        <div class="receipt-card">
+          <div class="receipt-row">
+            <span>Номер заказа:</span>
+            <strong>#CB-9821-KZ</strong>
+          </div>
+          <div class="receipt-row">
+            <span>Способ доставки:</span>
+            <span id="success-shipping-type">CollabAir Express</span>
+          </div>
+          <div class="receipt-row">
+            <span>Оплачено:</span>
+            <strong id="success-total-paid">13 300 ₸</strong>
+          </div>
+        </div>
+
+        <button class="btn-primary animated-btn" id="btn-success-close">
+          Вернуться в хаб
+        </button>
+      </div>
+    </div>
+
+    <!-- STICKY BOTTOM NAVIGATION BAR -->
+    <div class="bottom-nav" id="app-bottom-navbar">
+      <div class="nav-item active" data-target="screen-feed">
+        <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Главная</span>
+      </div>
+      <div class="nav-item" data-target="screen-cart" id="nav-item-cart">
+        <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        <span>Пулы и Чат</span>
+      </div>
+      <div class="nav-item" data-target="screen-investor" id="nav-item-investor">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83M22 12A10 10 0 0 0 12 2v10z"/></svg>
+        <span>Кабинет</span>
+      </div>
+    </div>
+
+    <!-- Toast message overlay -->
+    <div class="toast-msg" id="toast-notify">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+      </svg>
+      <span id="toast-text">Ссылка скопирована!</span>
+    </div>
+
+  </div> <!-- /phone-wrapper -->
+
+  <script src="app.js"></script>
+</body>
+</html>
